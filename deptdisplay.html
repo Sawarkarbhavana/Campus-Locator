@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block mapActivity %}
+    var Block= "{{ department.building.name }}";
+    var lat = "{{ department.building.lat }}";
+    var lng = "{{ department.building.long }}";
+    var latlngset;
+    latlngset = new google.maps.LatLng(lat, lng);
+    var markerPecific = new google.maps.Marker ({
+                    map: map, title:Block, position: latlngset									
+    });
+    var contentT = '<div class="map-content"><h3>' + Block;	
+    var infowindow = new google.maps.InfoWindow();
+    infowindow.setContent(content);
+    google.maps.event.addListener(markerPecific,"click", function() {
+        window.location = "/map/{{ department.building.name }}/";
+    });
+    var infowindow = new google.maps.InfoWindow ({
+        content:contentT
+    });
+    infowindow.open(map,markerPecific);
+{% endblock %}
+
+{% block title %}
+    | {{ department.building.name }} | {{ department.initials }}
+{% endblock %}
+
+{% block content %}
+    <div id="singlebuilding">
+        <ol class="breadcrumb">
+	    <li><h6><a href="/map/">RCOEM</a></h6></li> <span class="glyphicon glyphicon-circle-arrow-right"></span>
+	    <li><h6><a href="/map/{{ department.building }}">{{ department.building }}</a></h6></li> <span class="glyphicon glyphicon-circle-arrow-right"></span>
+            <li class="active"><h6>{{ department.initials }}</h6></li>
+	</ol>
+        <p class="text-center"><img src="{{ department.image.url }}"  style="border: 2px solid black;" /></p>
+        <p><h3 class="text-center"><b>{{ department }}</b></h3></p>
+        <p>{{ department.description }}</p>
+    </div>
+{% endblock %}

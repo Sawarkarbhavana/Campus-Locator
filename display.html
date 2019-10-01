@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block directionMarker %}
+    google.maps.event.addListener(map, 'click', function(event) {
+        if (origin == null)
+        {
+	    origin = event.latLng;
+            addMarker(origin);
+            $('#myTab a[href="#direction"]').tab('show');
+        } 
+        else
+        {
+            if (destination == null)
+	    {
+                destination = event.latLng;
+                addMarker(destination);
+                calcRoute();
+                $('#myTab a[href="#direction"]').tab('show');
+            } 
+            else
+            {
+                if (waypoints.length < 9)
+                {
+                    waypoints.push({ location: destination, stopover: true });
+                    destination = event.latLng;
+                    addMarker(destination);
+                    calcRoute();
+                    $('#myTab a[href="#direction"]').tab('show');
+                } 
+                else
+                {
+                    alert("Maximum number of waypoints reached");
+                }
+            }
+        }
+    });
+{% endblock %}
+{% block content %}
+    <ul class="nav nav-tabs nav-justified" id="myTab">
+        <li><a href="#building" data-toggle="tab"><span class="glyphicon glyphicon-home"></span> Buildings</a></li>
+        <li><a href="#department" data-toggle="tab"><span class="glyphicon glyphicon-tower"></span> Departments</a></li>
+        <li><a href="#direction" data-toggle="tab"><span class="glyphicon glyphicon-road"></span> Directions</a></li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane fade active" id="building">
+            <ul class="nav nav-list">
+            {% for building in buildings %}
+                <li class="text-left"><a href="/map/{{ building.name }}/"><h4><span class="glyphicon glyphicon-map-marker"></span>  {{ building }}</h4></a></li>
+            {% endfor %}
+            </ul>
+        </div>
+        <div class="tab-pane fade" id="department">
+            <ul class="nav nav-list">
+            {% for department in departments %}
+                <li class="text-left"><a href="/map/{{ department.building.name }}/{{ department.name }}/"><h4><span class="glyphicon glyphicon-tag"></span>  {{ department }}</h4></a></li>
+            {% endfor %}
+            </ul>
+        </div>
+        <div class="tab-pane fade" id="direction">
+            <p>Click on the map to add a <b>Source point</b> and <b>Destination point</b> to get directions.<br>To add a <b>Source Point:</b><br><ol><li><b>Click</b> on the map.</li><li><b>Get Current Location</b> by clicking on the button below.</li></ol><b>Reset</b> to remove the points.</p>
+            <div>
+                <button type="button" class="btn btn-primary btn-sm" onclick="reset()">Reset</button>
+                &nbsp;
+                <button type="button" class="btn btn-primary btn-sm" onclick="getLocation()">Get Current Position</button>
+		&nbsp;
+                <button type="button" class="btn btn-primary btn-sm" onclick="watchLocation()">Loaction Tracing</button>
+            </div>
+        </div>
+        <div id="directionsPanel">
+        </div>
+    </div>
+{% endblock %}

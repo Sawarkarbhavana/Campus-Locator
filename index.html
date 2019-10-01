@@ -1,0 +1,113 @@
+{% load staticfiles %}
+{% load bootstrap3 %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    {% bootstrap_css %}
+    
+    <title>RCOEM Campus Map</title>
+    <link href="{% static "css/carousel.css" %}" rel="stylesheet">
+  </head>
+<!-- NAVBAR -->
+  <body>
+    <div class="navbar-wrapper">
+      <div class="container">
+
+        <div class="navbar navbar-inverse navbar-static-top">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="#">RCOEM Campus Map</a>
+            </div>
+            <div class="navbar-collapse collapse">
+              <ul class="nav navbar-nav">
+                <li><a href="/map/">Buildings</a></li>
+                <li><a href="/map/#department">Departments</a></li>
+                <li><a href="/map/#direction">Directions</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- Carousel -->
+    <div id="myCarousel" class="carousel slide" data-ride="carousel">
+      <!-- Indicators -->
+      <ol class="carousel-indicators">
+        <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+        <li data-target="#myCarousel" data-slide-to="1"></li>
+        <li data-target="#myCarousel" data-slide-to="2"></li>
+      </ol>
+      <div class="carousel-inner">
+        <div class="item active">
+          <img src="{% static "img/gate2.gif" %}">
+          <div class="container">
+            <div class="carousel-caption">
+              <h1><b>RCOEM Campus Map</b></h1>
+	      <!--<p> <br> <br> </p>-->
+              <p><a class="btn btn-lg btn-info" href="/map/" role="button">Enter now!</a></p>
+	      <!--<p> <br> </p>-->
+            </div>
+          </div>
+        </div>
+        <div class="item">
+         <img src="{% static "img/Admin.gif" %}">
+          <div class="container">
+            <div class="carousel-caption">
+              <h1><b>RCOEM Campus Map</b></h1>
+              <p><a class="btn btn-lg btn-info" href="/map/" role="button">Enter now!</a></p>
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <img src="{% static "img/ITC.gif" %}">
+          <div class="container">
+            <div class="carousel-caption">
+              <h1><b>RCOEM Campus Map</b></h1>
+              <p><a class="btn btn-lg btn-info" href="/map/" role="button">Enter now!</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <a class="left carousel-control" href="#myCarousel" data-slide="prev"><span class="glyphicon glyphicon-chevron-left"></span></a>
+      <a class="right carousel-control" href="#myCarousel" data-slide="next"><span class="glyphicon glyphicon-chevron-right"></span></a>
+    </div><!-- /.carousel -->
+
+    <div class="container marketing">
+      <div class="row">
+        <div class="col-lg-12 text-center">
+		<h2>Welcome to RCOEM Campus Map</h2>
+		<p><b>Project made by:</b> Jason Estibeiro<br>Chinmay Joshi<br>Akhilesh Bhatia<br>Apoorv Kshirsagar<br>Namita Nisal</p>
+		<p>Under the guidence of <b>Dr. M.B.Chandak</b></p>
+		<p><a class="btn btn-lg btn-info" href="/map/" role="button">Enter now!</a></p>
+        </div><!-- /.col-lg-12 -->
+      </div><!-- /.row -->
+    </div><!-- /.container -->
+
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    {% bootstrap_javascript %}
+    <script src="{% static "js/holder.js" %}"></script>
+    <script>
+	$(function () {
+	   $('.carousel').carousel({
+	    interval:2500
+	   })
+	});
+    </script>
+  </body>
+</html>

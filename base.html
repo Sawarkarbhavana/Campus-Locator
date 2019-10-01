@@ -1,0 +1,291 @@
+{% load staticfiles %}
+{% load bootstrap3 %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet" media="screen">
+        {% bootstrap_css %}
+        <!--<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>-->
+        <style type="text/css">
+            #map-container {
+                width: 100%;
+                height: 100%;
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 0;
+            }
+            
+            #pageContainer {
+                width: 425px;
+                position: absolute;
+                z-index: 1;
+                top:0;
+                left:0;
+                border: 4px solid black;
+                background:#fff;
+                padding:20px;
+                min-height: 100%;
+            }
+        </style>
+        <link href="{% static "css/custom.css" %}" rel="stylesheet">
+        <title>Campus Map {% block title %}{% endblock %}</title>
+        <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+        <script type="text/javascript">
+            var directionDisplay;
+            var directionsService = new google.maps.DirectionsService();
+            var map;
+            var origin = null;
+            var destination = null;
+            var waypoints = [];
+            var markers = [];
+            var marker;
+            var directionsVisible = false;
+            var prop = { preserveViewport: true, };
+            var pos = new google.maps.LatLng(21.176946,79.059943);
+    
+            function initialize()
+            {
+                directionsDisplay = new google.maps.DirectionsRenderer(prop);
+                var rcoem = new google.maps.LatLng(21.176946,79.059943);
+                var mapProp = {
+                    center:new google.maps.LatLng(21.176946,79.059943),
+                    zoom:18,
+                    //minZoom: 18,
+                    //maxZoom: 18,
+                    panControl:false,     
+                    scaleControl:false,
+                    streetViewControl:false,
+                    overviewMapControl:false,
+                    rotateControl:false,    
+                    zoomControl:true,
+                    zoomControlOptions:{style:google.maps.ZoomControlStyle.LARGE },//SMALL LARGE DEFAULT
+                    mapTypeControl:true,
+                    mapTypeControlOptions: {
+                        style:google.maps.MapTypeControlStyle.HORIZONTAL_BAR, // DROPDOWN_MENU HORIZONTAL_BAR DEFAULT
+                        position:google.maps.ControlPosition.TOP_RIGHT, // TOP BOTTOM RIGHT LEFT
+                    },
+                    navigationControlOptions: {style: google.maps.NavigationControlStyle.SMALL},
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                };
+                map = new google.maps.Map(document.getElementById("map_canvas"), mapProp);
+                directionsDisplay.setMap(map);
+                directionsDisplay.setPanel(document.getElementById("directionsPanel"));
+                {% block directionMarker %}
+                {% endblock %}	
+                var infoWindow = new google.maps.InfoWindow;
+                map.setCenter(pos);
+    
+                function infoCallback(infowindow, marker) 
+                {
+                    return function() 
+                    {
+                        infowindow.open(map, marker);
+                    };
+                }	
+    
+                function infoCallreject(infowindow, marker) 
+                {
+                    return function() 
+                    {
+                        infowindow.close(map, marker);
+                    };
+                }
+    
+                function setMarkers(map, all) 
+                {
+                    {% for building in buildings %}
+                        var Block= "{{ building.name }}";
+                        var lat = "{{ building.lat }}";
+                        var lng = "{{ building.long }}";
+                        var latlngset;
+                        latlngset = new google.maps.LatLng(lat, lng);
+                        var marker = new google.maps.Marker ({
+                            map: map, title:Block, position: latlngset									
+                        });
+                        var content = '<div class="map-content"><h5>' + Block;
+                        var infowindow = new google.maps.InfoWindow();
+                        infowindow.setContent(content);
+        
+                        google.maps.event.addListener(marker,"mouseover",infoCallback(infowindow, marker));
+                        google.maps.event.addListener(marker,"mouseout",infoCallreject(infowindow, marker));
+                        google.maps.event.addListener(marker,"click", function() {
+                            window.location = "/map/{{ building.name }}/";
+                        });
+                        google.maps.event.addListener(marker,"click",infoCallback(infowindow, marker));
+                    {% endfor %}
+                    {% block mapActivity %}
+                    {% endblock %}
+                }	
+                setMarkers(map);
+            }
+            
+            function addMarker(latlng) 
+            {
+                markers.push(new google.maps.Marker({
+                    position: latlng, 
+                    map: map,
+                    icon: "http://maps.google.com/mapfiles/marker" + String.fromCharCode(markers.length + 65) + ".png"
+                }));
+            }
+    
+            function calcRoute() 
+            {
+                if (origin == null) 
+                {
+                    alert("Click on the map to add a start point");
+                    return;
+                }
+                if (destination == null) 
+                {
+                    alert("Click on the map to add an end point");
+                    return;
+                } 
+                mode = google.maps.DirectionsTravelMode.DRIVING;
+                var request = {
+                    origin: origin,
+                    destination: destination,
+                    waypoints: waypoints,
+                    travelMode: mode
+                }
+                directionsService.route(request, function(response, status) 
+                {
+                    if (status == google.maps.DirectionsStatus.OK) 
+                    {
+                        directionsDisplay.setDirections(response);
+                    }
+                });
+                clearMarkers();
+                directionsVisible = true;
+            }
+    
+            function clearMarkers() 
+            {
+                for (var i = 0; i < markers.length; i++) 
+                {
+                    markers[i].setMap(null);
+                }
+            }
+    
+            function clearWaypoints() 
+            {
+                markers = [];
+                origin = null;
+                destination = null;
+                waypoints = [];
+                directionsVisible = false;
+            }
+    
+            function reset() 
+            {
+                clearMarkers();
+                clearWaypoints();
+                directionsDisplay.setMap(null);
+                directionsDisplay.setPanel(null);
+                directionsDisplay = new google.maps.DirectionsRenderer(prop);
+                directionsDisplay.setMap(map);
+                directionsDisplay.setPanel(document.getElementById("directionsPanel"));
+                navigator.geolocation.clearWatch();
+                initialize();
+                marker.setMap(null);
+                map.setCenter(pos);
+            }
+	    
+	    function getLocation()
+	    {
+		if (navigator.geolocation)
+		{
+		    navigator.geolocation.getCurrentPosition(showPosition);
+		}
+		else
+		{
+		    alert("Geolocation is not supported by this browser.");
+		}
+	    }
+            
+            function watchLocation()
+            {
+                if (navigator.geolocation)
+                {
+                    navigator.geolocation.watchPosition(watchPosition);
+                }
+                else
+                {
+                    alert("Geolocation is not supported by this browser.");
+                }
+            }
+	    
+            function watchPosition(position)
+            {
+                var posi = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
+                marker = new google.maps.Marker ({
+                    map: map, title:"You are here! (at least within a "+position.coords.accuracy+" meter radius)", position: posi									
+                });
+                map.setCenter(posi);
+            }
+            
+	    function showPosition(position) 
+            {
+                var posi = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
+		//map.setCenter(posi);
+		if (origin == null)
+		{
+		    origin = posi;
+		    addMarker(origin);
+		} 
+		else
+		{
+		    if (destination == null) {
+			destination = posi;
+			addMarker(destination);
+			calcRoute();
+		    } 
+		    else
+		    {
+			if (waypoints.length < 9)
+			{
+			    waypoints.push({ location: destination, stopover: true });
+			    destination = posi;
+			    addMarker(destination);
+			    calcRoute();
+			} 
+			else
+			{
+			    alert("Maximum number of waypoints reached");
+			}
+		    }
+		}
+            }
+        </script>
+    </head>
+    
+    <body onload="initialize()" style="font-family: arial;">
+        <div class="row">
+            <div class="col-md-8">
+                <div id="map-container">
+                    <div id="map_canvas" style="width: 100%;height: 100%;"></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-1">
+                    </div>
+                    <div class="col-md-6">
+                        <div id="pageContainer">
+                            <p class="text-center"><a href="/"><img src="{% static "img/title2.gif" %}" width=275px></a></p>
+                            {% block content %}
+                            {% endblock %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+	</div>
+        <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+        {% bootstrap_javascript %}
+        <script>
+            $(function () {
+               $('.nav-tabs a:first').tab('show');
+               var hash = window.location.hash;
+               hash && $('ul.nav a[href="' + hash + '"]').tab('show');
+            });
+        </script>
+    </body>
+</html>
